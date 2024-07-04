@@ -6,7 +6,9 @@ pipeline {
     environment {
         Docker_Cred = credentials ('docker-cred')
     }
-
+    options {
+        buildDiscarder logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '30', numToKeepStr: '1')
+    }
     stages {
         stage('Checkout') {
             steps {
@@ -34,9 +36,21 @@ pipeline {
                 '''
             }
         }
+        stage('Run Docker Container'){
+            steps{
+                sh 'docker run -d --name sample-application -p 443:8080 amarnathvenkatam/addressbook:v1.1.${BUILD_NUMBER} '
+            }
+        }
+    }
+    post {
+        always {
+            echo "job Completed"
+        }
+        success {
+            echo "job is success"
+        }
+        failure {
+            echo "job Failued"
+        }
     }
 }
-
-
-
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
